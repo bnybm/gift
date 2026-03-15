@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Klaim Hadiah Tuker Kado</title>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+<style>
+body{
+font-family: Arial;
+text-align:center;
+margin-top:50px;
+background:#f5f5f5;
+}
+
+input, select{
+padding:10px;
+width:250px;
+margin:8px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+padding:10px 20px;
+font-size:16px;
+cursor:pointer;
+border:none;
+background:#4CAF50;
+color:white;
+border-radius:6px;
+}
+
+#bankField{
+display:none;
+}
+
+#success{
+display:none;
+font-size:20px;
+color:green;
+margin-top:20px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>🎉 Selamat!</h1>
+<p>Masukkan nomor untuk menerima hadiah.</p>
+
+<form id="giftForm">
+
+<input type="text" id="nama" placeholder="Nama kamu" required>
+<br>
+
+<input type="text" id="nomor" placeholder="Nomor GoPay / Nomor Rekening" required>
+<br>
+
+<select id="metode" onchange="cekMetode()">
+<option value="GoPay">GoPay</option>
+<option value="Bank">Rekening Bank</option>
+</select>
+
+<br>
+
+<div id="bankField">
+<input type="text" id="bank" placeholder="Nama Bank">
+</div>
+
+<br>
+
+<button type="submit">Klaim Hadiah 💰</button>
+
+</form>
+
+<div id="success">
+🎊 Klaim berhasil! Hadiah akan segera dikirim.
+</div>
+
+<script>
+
+(function(){
+emailjs.init("VC7O4EoMybVjE5pcc");
+})();
+
+function cekMetode(){
+let metode=document.getElementById("metode").value;
+let bankField=document.getElementById("bankField");
+
+if(metode==="Bank"){
+bankField.style.display="block";
+}else{
+bankField.style.display="none";
+}
+}
+
+// cek apakah sudah pernah klaim
+if(localStorage.getItem("hadiahClaimed")){
+document.body.innerHTML = `
+<h1>🎁 Hadiah Sudah Diklaim</h1>
+<p>QR ini sudah digunakan sebelumnya.</p>
+`;
+}
+
+document.getElementById("giftForm").addEventListener("submit",function(e){
+
+e.preventDefault();
+
+let tombol=document.querySelector("button");
+tombol.innerText="Memproses hadiah... ⏳";
+tombol.disabled=true;
+
+let params={
+nama:document.getElementById("nama").value,
+nomor:document.getElementById("nomor").value,
+metode:document.getElementById("metode").value,
+bank:document.getElementById("bank").value
+};
+
+setTimeout(function(){
+
+emailjs.send("service_ekv79bv","template_1kh3a34",params)
+.then(function(){
+
+// simpan status klaim
+localStorage.setItem("hadiahClaimed",true);
+
+confetti({
+particleCount:150,
+spread:70,
+origin:{y:0.6}
+});
+
+document.getElementById("success").style.display="block";
+
+});
+
+},2500);
+
+});
+
+</script>
+
+</body>
+</html>
